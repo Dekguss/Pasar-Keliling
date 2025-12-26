@@ -47,5 +47,26 @@
         "status": "Selesai",
         "date": "2025-12-26",
         "courier_id": 3
+    },
+    {
+        "id": 3,
+        "buyer_id": 2,
+        "buyer_name": "Dwi Adnyana",
+        "merchant_id": 1,
+        "items": [
+            {
+                "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999",
+                "merchant_id": 1,
+                "merchant_name": "Toko Sayur Segar",
+                "name": "Sayuran Segar",
+                "price": 25000,
+                "product_id": 1,
+                "qty": 3
+            }
+        ],
+        "total_price": 75000,
+        "status": "Siap Diantar",
+        "date": "2025-12-27",
+        "courier_id": null
     }
 ]
