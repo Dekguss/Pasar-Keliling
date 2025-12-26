@@ -2,7 +2,7 @@
 {% block content %}
 <div class="bg-white min-h-screen flex flex-col">
     <div class="px-6 py-4 border-b border-gray-100 flex items-center sticky top-0 bg-white z-10">
-        <a href="{{ url_for('merchant_dashboard') }}" class="mr-4 text-dark"><i class="fas fa-arrow-left"></i></a>
+        <a href="{{ url_for('merchant_products') }}" class="mr-4 text-dark"><i class="fas fa-arrow-left"></i></a>
         <h1 class="font-bold text-lg text-dark">
             {% if mode == 'add' %} Tambah Produk Baru {% else %} Edit Produk {% endif %}
         </h1>

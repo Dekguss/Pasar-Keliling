@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bg-gray-50 min-h-screen pb-32">
+    <div class="bg-white rounded-b-[2.5rem] shadow-sm px-6 pt-6 pb-8 mb-6 relative z-10">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-xl font-bold text-dark">Halo, Juragan!</h1>
+                <p class="text-xs text-gray-500">{{ session['name'] }}</p>
+            </div>
+            <a href="{{ url_for('logout') }}" class="w-10 h-10 bg-red-50 text-red-500 rounded-full flex items-center justify-center hover:bg-red-100 transition shadow-sm">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+
+        <div class="bg-gradient-to-br from-dark to-gray-800 text-white p-6 rounded-3xl shadow-lg shadow-gray-300/50 relative overflow-hidden group">
+            <div class="relative z-10">
+                <p class="text-gray-400 text-[10px] uppercase tracking-wider mb-1">Saldo Tersedia</p>
+                <h2 class="text-3xl font-bold mb-6">Rp 1.250.000</h2>
+                <button class="bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center transition">
+                    <i class="fas fa-arrow-down mr-2"></i> Tarik Dana
+                </button>
+            </div>
+            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-primary blur-[50px] opacity-20 rounded-full group-hover:opacity-30 transition"></div>
+            <i class="fas fa-store text-[8rem] text-white opacity-5 absolute -right-4 -bottom-8"></i>
+        </div>
+    </div>
+  
+    <div class="px-6 mt-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-gray-800 text-lg">Produk Saya</h3>
+            <p class="text-xs text-gray-400">{{ products|length }} produk aktif di toko</p>
+        </div>
+        <div class="space-y-3">
+            {% for p in products %}
+            <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex gap-4 items-center group">
+                <div class="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 relative">
+                    <img src="{{ p.image }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                </div>
+                
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-bold text-sm text-dark truncate">{{ p.name }}</h4>
+                    <p class="text-primary font-bold text-sm mb-1">Rp {{ "{:,}".format(p.price).replace(',', '.') }}</p>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded">Stok: {{ p.stock }}</span>
+                        <span class="text-[10px] text-yellow-500"><i class="fas fa-star"></i> 4.5</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2 pr-1">
+                    <a href="{{ url_for('merchant_edit_product', pid=p.id) }}" class="w-8 h-8 bg-gray-50 text-gray-600 rounded-lg flex items-center justify-center hover:bg-yellow-50 hover:text-yellow-600 transition">
+                        <i class="fas fa-pen text-xs"></i>
+                    </a>
+                    <a href="{{ url_for('merchant_delete_product', pid=p.id) }}" onclick="return confirm('Hapus produk ini?')" class="w-8 h-8 bg-gray-50 text-gray-600 rounded-lg flex items-center justify-center hover:bg-red-50 hover:text-red-600 transition">
+                        <i class="fas fa-trash text-xs"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% include 'components/merchant_nav.html' %}
+
+{% endblock %}

@@ -68,5 +68,35 @@
         "status": "Siap Diantar",
         "date": "2025-12-27",
         "courier_id": null
+    },
+    {
+        "id": 4,
+        "buyer_id": 2,
+        "buyer_name": "Dwi Adnyana",
+        "merchant_id": 1,
+        "items": [
+            {
+                "image": "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6",
+                "merchant_id": 1,
+                "merchant_name": "Toko Sayur Segar",
+                "name": "Buah Apel Merah",
+                "price": 35000,
+                "product_id": 2,
+                "qty": 2
+            },
+            {
+                "image": "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6",
+                "merchant_id": 1,
+                "merchant_name": "Toko Sayur Segar",
+                "name": "Buah Apel",
+                "price": 35000,
+                "product_id": 3,
+                "qty": 1
+            }
+        ],
+        "total_price": 105000,
+        "status": "Menunggu Konfirmasi",
+        "date": "2025-12-27",
+        "courier_id": null
     }
 ]

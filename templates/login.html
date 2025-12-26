@@ -1,16 +1,20 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="h-screen flex flex-col justify-center px-8 bg-gradient-to-br from-dark to-secondary text-white relative overflow-hidden">
-    <div class="absolute top-0 left-0 w-64 h-64 bg-primary opacity-20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+    <!-- <div class="absolute top-0 left-0 w-64 h-64 bg-primary opacity-20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div> -->
     
     <div class="z-10">
         <div class="flex justify-center mb-8">
-            <div class="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center shadow-lg transform rotate-12">
-                <i class="fas fa-leaf text-4xl text-white -rotate-12"></i>
+            <div class="w-32 h-32 flex items-center justify-center transform rotate-12">
+                <img 
+                    src="{{ url_for('static', filename='logo.png') }}" 
+                    alt="Pasar Keliling Logo" 
+                    class="w-32 h-32 object-cover -rotate-12"
+                >
             </div>
         </div>
         <h1 class="text-3xl font-bold text-center mb-2">Pasar Keliling</h1>
-        <p class="text-center text-gray-300 mb-8 text-sm">Belanja segar langsung dari petani ke depan rumahmu.</p>
+        <p class="text-center text-gray-300 mb-8 text-sm">Belanja segar langsung dari pasar ke depan rumahmu.</p>
         
         <form method="POST" class="space-y-4">
             <div>
@@ -26,7 +30,7 @@
             </button>
         </form>
         
-        <div class="mt-8 text-center text-xs text-gray-400">
+        <div class="mt-8 text-mute text-center text-xs text-gray-400">
             <p>Contoh Login:</p>
             <p>Pembeli: pembeli1 / 123</p>
             <p>Pedagang: pedagang1 / 123</p>

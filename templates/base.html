@@ -32,37 +32,46 @@
         {% block content %}{% endblock %}
 
         {% if session.get('user_id') and session.get('role') == 'pembeli' %}
-        <div class="fixed bottom-0 w-full max-w-[480px] bg-white shadow-[0_-5px_15px_rgba(0,0,0,0.05)] rounded-t-2xl z-50">
-            <div class="flex justify-between items-center px-6 py-3 relative">
-                <a href="{{ url_for('buyer_home') }}" class="flex flex-col items-center text-secondary hover:text-primary">
+        <div class="fixed bottom-0 left-0 right-0 w-full max-w-[480px] mx-auto bg-white shadow-[0_-5px_15px_rgba(0,0,0,0.05)] rounded-t-2xl z-50">
+            <div class="flex justify-around items-center px-2 py-3 relative">
+                <!-- Home Link -->
+                <a href="{{ url_for('buyer_home') }}" 
+                   class="flex-1 flex flex-col items-center text-secondary hover:text-primary transition-colors">
                     <i class="fas fa-home text-xl mb-1"></i>
-                    <span class="text-[10px]">Beranda</span>
+                    <span class="text-xs">Beranda</span>
                 </a>
                 
-                <a href="#" class="flex flex-col items-center text-gray-400 hover:text-primary">
+                <!-- Products Link -->
+                <a href="#" class="flex-1 flex flex-col items-center text-gray-400 hover:text-primary transition-colors">
                     <i class="fas fa-store text-xl mb-1"></i>
-                    <span class="text-[10px]">Produk</span>
+                    <span class="text-xs">Produk</span>
                 </a>
-
-                <div class="relative -top-6">
-                    <a href="{{ url_for('cart') }}" class="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white shadow-lg border-4 border-white transform transition hover:scale-105">
+        
+                <!-- Cart Button -->
+                <div class="relative -top-6 mx-1">
+                    <a href="{{ url_for('cart') }}" 
+                       class="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white shadow-lg border-4 border-white hover:shadow-xl hover:scale-105 transition-all duration-200">
                         <i class="fas fa-shopping-basket text-2xl"></i>
                         {% if session.get('cart') %}
-                        <span class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white">
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white">
                             {{ session.get('cart')|length }}
                         </span>
                         {% endif %}
                     </a>
                 </div>
-
-                <a href="{{ url_for('history') }}" class="flex flex-col items-center text-gray-400 hover:text-primary">
+        
+                <!-- History Link -->
+                <a href="{{ url_for('history') }}" 
+                   class="flex-1 flex flex-col items-center text-gray-400 hover:text-primary transition-colors">
                     <i class="fas fa-receipt text-xl mb-1"></i>
-                    <span class="text-[10px]">Riwayat</span>
+                    <span class="text-xs">Riwayat</span>
                 </a>
-
-                <a href="{{ url_for('logout') }}" class="flex flex-col items-center text-gray-400 hover:text-red-500">
+        
+                <!-- Account Link -->
+                <a href="{{ url_for('logout') }}" 
+                   class="flex-1 flex flex-col items-center text-gray-400 hover:text-red-500 transition-colors">
                     <i class="fas fa-user text-xl mb-1"></i>
-                    <span class="text-[10px]">Akun</span>
+                    <span class="text-xs">Akun</span>
                 </a>
             </div>
         </div>

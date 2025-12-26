@@ -26,7 +26,7 @@ def index():
     if 'user_id' in session:
         role = session.get('role')
         if role == 'pembeli': return redirect(url_for('buyer_home'))
-        elif role == 'pedagang': return redirect(url_for('merchant_dashboard'))
+        elif role == 'pedagang': return redirect(url_for('merchant_products'))
         elif role == 'kurir': return redirect(url_for('courier_dashboard'))
     return redirect(url_for('login'))
 
@@ -63,9 +63,23 @@ def buyer_home():
 
 @app.route('/product/<int:pid>')
 def product_detail(pid):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
     products = load_data('products.json')
+    users = load_data('users.json')
+    
     product = next((p for p in products if p['id'] == pid), None)
-    return render_template('product_detail.html', product=product)
+    if not product:
+        return "Produk tidak ditemukan", 404
+        
+    merchant = next((u for u in users if u['id'] == product['merchant_id']), {})
+    
+    return render_template(
+        'product_detail.html', 
+        product=product, 
+        merchant=merchant
+    )
 
 @app.route('/add_to_cart/<int:pid>', methods=['POST'])
 def add_to_cart(pid):
@@ -147,35 +161,33 @@ def history():
     my_orders.sort(key=lambda x: x['id'], reverse=True)
     return render_template('history.html', orders=my_orders)
 
-# --- MERCHANT ROUTES (CRUD & ACC) ---
+# --- MERCHANT ROUTES (Updated) ---
+
+# 1. Halaman Utama (Pesanan Masuk)
 @app.route('/merchant')
-def merchant_dashboard():
-    if session.get('role') != 'pedagang': 
-        return redirect(url_for('login'))
+@app.route('/merchant/orders')
+def merchant_orders():
+    if session.get('role') != 'pedagang': return redirect(url_for('login'))
     
-    products = load_data('products.json')
     orders = load_data('orders.json')
-    users = load_data('users.json')
-    
-    # Filter produk milik pedagang ini
-    my_products = [p for p in products if p['merchant_id'] == session['user_id']]
-    
-    # Process orders to ensure all items have required fields
-    for order in orders:
-        if 'items' in order and isinstance(order['items'], list):
-            for item in order['items']:
-                # Ensure each item has merchant_name
-                if 'merchant_name' not in item and 'merchant_id' in item:
-                    merchant = next((u for u in users if u['id'] == item['merchant_id'] and u['role'] == 'pedagang'), None)
-                    if merchant:
-                        item['merchant_name'] = merchant.get('name', 'Toko')
-    
     # Filter orderan masuk untuk pedagang ini
     incoming_orders = [o for o in orders if o.get('merchant_id') == session['user_id']]
     incoming_orders.sort(key=lambda x: x['id'], reverse=True)
 
-    return render_template('merchant.html', products=my_products, orders=incoming_orders)
+    return render_template('merchant_orders.html', orders=incoming_orders, page='orders')
 
+# 2. Halaman Kelola Produk
+@app.route('/merchant/products')
+def merchant_products():
+    if session.get('role') != 'pedagang': return redirect(url_for('login'))
+    
+    products = load_data('products.json')
+    # Filter produk milik pedagang ini
+    my_products = [p for p in products if p['merchant_id'] == session['user_id']]
+    
+    return render_template('merchant_products.html', products=my_products, page='products')
+
+# 3. Halaman Tambah Produk (Sudah ada, tidak perlu diubah logicnya)
 @app.route('/merchant/product/add', methods=['GET', 'POST'])
 def merchant_add_product():
     if session.get('role') != 'pedagang': return redirect(url_for('login'))
@@ -188,57 +200,82 @@ def merchant_add_product():
             "merchant_name": session['name'],
             "name": request.form['name'],
             "price": int(request.form['price']),
-            "image": request.form['image'], # URL Gambar
+            "image": request.form['image'],
             "rating": 0.0,
             "desc": request.form['desc'],
             "stock": int(request.form['stock'])
         }
         products.append(new_product)
         save_data('products.json', products)
-        return redirect(url_for('merchant_dashboard'))
+        # Setelah tambah, kembali ke halaman produk
+        return redirect(url_for('merchant_products')) 
         
     return render_template('merchant_form.html', mode='add')
 
-@app.route('/merchant/product/edit/<int:pid>', methods=['GET', 'POST'])
+@app.route('/merchant/products/<int:pid>/edit', methods=['GET', 'POST'])
 def merchant_edit_product(pid):
-    if session.get('role') != 'pedagang': return redirect(url_for('login'))
+    if session.get('role') != 'pedagang':
+        return redirect(url_for('login'))
     
     products = load_data('products.json')
-    product = next((p for p in products if p['id'] == pid and p['merchant_id'] == session['user_id']), None)
+    product = next((p for p in products if p['id'] == pid), None)
     
-    if not product: return redirect(url_for('merchant_dashboard'))
-
+    if not product or product['merchant_id'] != session['user_id']:
+        flash('Produk tidak ditemukan', 'error')
+        return redirect(url_for('merchant_products'))
+    
     if request.method == 'POST':
+        # Update product details
         product['name'] = request.form['name']
         product['price'] = int(request.form['price'])
-        product['image'] = request.form['image']
-        product['desc'] = request.form['desc']
         product['stock'] = int(request.form['stock'])
+        product['image'] = request.form['image']
+        
         save_data('products.json', products)
-        return redirect(url_for('merchant_dashboard'))
-
+        flash('Produk berhasil diperbarui', 'success')
+        return redirect(url_for('merchant_products'))
+    
     return render_template('merchant_form.html', mode='edit', product=product)
 
-@app.route('/merchant/product/delete/<int:pid>')
+@app.route('/merchant/products/<int:pid>/delete', methods=['POST'])
 def merchant_delete_product(pid):
-    if session.get('role') != 'pedagang': return redirect(url_for('login'))
+    if session.get('role') != 'pedagang':
+        return redirect(url_for('login'))
     
     products = load_data('products.json')
-    # Filter list untuk menghilangkan produk yg dihapus
-    products = [p for p in products if not (p['id'] == pid and p['merchant_id'] == session['user_id'])]
-    save_data('products.json', products)
-    return redirect(url_for('merchant_dashboard'))
+    product = next((p for p in products if p['id'] == pid), None)
+    
+    if product and product['merchant_id'] == session['user_id']:
+        products = [p for p in products if p['id'] != pid]
+        save_data('products.json', products)
+        flash('Produk berhasil dihapus', 'success')
+    else:
+        flash('Produk tidak ditemukan', 'error')
+    
+    return redirect(url_for('merchant_products'))
 
-@app.route('/merchant/order/accept/<int:oid>')
+@app.route('/merchant/orders/<int:oid>/accept', methods=['POST'])
 def merchant_accept_order(oid):
-    if session.get('role') != 'pedagang': return redirect(url_for('login'))
+    if session.get('role') != 'pedagang': 
+        return redirect(url_for('login'))
     
     orders = load_data('orders.json')
-    for o in orders:
-        if o['id'] == oid and o['merchant_id'] == session['user_id']:
-            o['status'] = 'Siap Diantar' # Ubah status agar muncul di kurir
+    order = next((o for o in orders if o['id'] == oid), None)
+    
+    if not order:
+        flash('Pesanan tidak ditemukan', 'error')
+        return redirect(url_for('merchant_orders'))
+        
+    if order['merchant_id'] != session['user_id']:
+        flash('Anda tidak memiliki akses ke pesanan ini', 'error')
+        return redirect(url_for('merchant_orders'))
+    
+    # Update status pesanan
+    order['status'] = 'Siap Diantar'
     save_data('orders.json', orders)
-    return redirect(url_for('merchant_dashboard'))
+    
+    flash('Pesanan berhasil diterima', 'success')
+    return redirect(url_for('merchant_orders'))
 
 # --- COURIER ROUTES ---
 @app.route('/courier')
@@ -295,4 +332,4 @@ def courier_finish_order(oid):
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=True)
