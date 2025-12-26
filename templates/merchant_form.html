@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bg-white min-h-screen flex flex-col">
+    <div class="px-6 py-4 border-b border-gray-100 flex items-center sticky top-0 bg-white z-10">
+        <a href="{{ url_for('merchant_dashboard') }}" class="mr-4 text-dark"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="font-bold text-lg text-dark">
+            {% if mode == 'add' %} Tambah Produk Baru {% else %} Edit Produk {% endif %}
+        </h1>
+    </div>
+
+    <div class="p-6 flex-1">
+        <form method="POST" class="space-y-5">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">Nama Produk</label>
+                <input type="text" name="name" value="{{ product.name if product else '' }}" class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:border-primary focus:bg-white transition" placeholder="Contoh: Sayur Bayam" required>
+            </div>
+
+            <div class="flex gap-4">
+                <div class="flex-1">
+                    <label class="block text-xs font-bold text-gray-500 mb-1">Harga (Rp)</label>
+                    <input type="number" name="price" value="{{ product.price if product else '' }}" class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:border-primary transition" placeholder="0" required>
+                </div>
+                <div class="w-1/3">
+                    <label class="block text-xs font-bold text-gray-500 mb-1">Stok</label>
+                    <input type="number" name="stock" value="{{ product.stock if product else '' }}" class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:border-primary transition" placeholder="0" required>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">URL Gambar</label>
+                <input type="url" name="image" value="{{ product.image if product else '' }}" class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:border-primary transition" placeholder="https://..." required>
+                <p class="text-[10px] text-gray-400 mt-1">*Gunakan link gambar langsung (misal dari Unsplash)</p>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">Deskripsi</label>
+                <textarea name="desc" rows="4" class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:border-primary transition" placeholder="Jelaskan produkmu..." required>{{ product.desc if product else '' }}</textarea>
+            </div>
+
+            <button type="submit" class="w-full bg-primary text-dark font-bold py-4 rounded-xl shadow-lg shadow-lime-500/30 mt-4">
+                Simpan Produk
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

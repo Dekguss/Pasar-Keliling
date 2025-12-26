@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bg-gray-100 min-h-screen p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-dark">Area Kurir</h1>
+            <p class="text-xs text-gray-500">Siap antar pesanan!</p>
+        </div>
+        <a href="{{ url_for('logout') }}" class="text-red-500 text-sm font-semibold bg-white px-3 py-1 rounded-full shadow-sm">Logout</a>
+    </div>
+
+    <div class="bg-white p-2 rounded-xl shadow-sm mb-6 flex">
+        <div class="w-1/2 bg-primary text-dark text-center py-2 rounded-lg font-bold text-xs shadow-sm">
+            Tersedia
+        </div>
+        <div class="w-1/2 text-gray-400 text-center py-2 text-xs">
+            Riwayat
+        </div>
+    </div>
+
+    <h2 class="font-bold text-gray-700 mb-4 text-sm">Pesanan Siap Diantar</h2>
+
+    {% if orders %}
+        {% for order in orders %}
+        <div class="bg-white p-5 rounded-xl shadow-md mb-4 relative overflow-hidden border-l-4 
+            {% if order.status == 'Sedang Diantar' %} border-green-500 {% else %} border-blue-500 {% endif %}">
+            
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <span class="bg-dark text-white text-[10px] px-2 py-1 rounded">ORDER #{{ order.id }}</span>
+                    {% if order.status == 'Sedang Diantar' %}
+                        <span class="ml-2 bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded font-bold">Sedang Kamu Bawa</span>
+                    {% endif %}
+                    <h3 class="font-bold mt-2 text-lg">{{ order.buyer_name }}</h3>
+                </div>
+                <div class="text-right">
+                    <span class="text-primary font-bold block">Rp {{ "{:,}".format(order.total_price).replace(',', '.') }}</span>
+                    <span class="text-[10px] text-gray-400">Tunai</span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2 text-xs text-gray-500 mb-3 bg-gray-50 p-2 rounded-lg">
+                <i class="fas fa-map-marker-alt text-red-500"></i>
+                <span>Jl. Gatot Subroto No. 123 (Rumah Pembeli)</span>
+            </div>
+
+            <div class="border-t border-dashed border-gray-200 py-3 mb-2 text-xs text-gray-600">
+                <p class="font-bold mb-1">Item Pesanan:</p>
+                {% for item in order['items'] %}
+                <div class="flex justify-between">
+                    <span>{{ item.qty }}x {{ item.name }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if order.status == 'Siap Diantar' %}
+                <div class="flex gap-2">
+                    <a href="{{ url_for('courier_map', oid=order.id) }}" class="flex-1 bg-blue-50 text-blue-600 font-bold py-3 rounded-lg text-center text-xs flex items-center justify-center border border-blue-100">
+                        <i class="fas fa-map-marked-alt mr-2"></i> Lihat Peta
+                    </a>
+                    
+                    <a href="{{ url_for('courier_take_order', oid=order.id) }}" class="flex-[2] bg-primary text-dark font-bold py-3 rounded-lg shadow-lg shadow-lime-500/20 text-center text-xs flex items-center justify-center">
+                        <i class="fas fa-box mr-2"></i> Ambil Pesanan
+                    </a>
+                </div>
+            {% elif order.status == 'Sedang Diantar' %}
+                <a href="{{ url_for('courier_map', oid=order.id) }}" class="block w-full text-center bg-blue-600 text-white font-bold py-3 mb-2 rounded-lg shadow-md text-sm">
+                     <i class="fas fa-location-arrow mr-2"></i> Buka Navigasi
+                </a>
+    
+                <a href="{{ url_for('courier_finish_order', oid=order.id) }}" class="block w-full text-center bg-green-600 text-white font-bold py-3 rounded-lg shadow-lg text-sm">
+                    <i class="fas fa-check-circle mr-2"></i> Selesaikan Pengiriman
+                </a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="flex flex-col items-center justify-center py-10 text-gray-400">
+            <i class="fas fa-motorcycle text-4xl mb-3 text-gray-300"></i>
+            <p class="text-xs">Tidak ada pesanan yang siap diantar saat ini.</p>
+            <p class="text-[10px] mt-1">Tunggu pedagang menyetujui pesanan.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

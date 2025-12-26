@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bg-gray-50 min-h-screen p-6 pb-24">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-dark">Halo, Juragan!</h1>
+            <p class="text-xs text-gray-500">{{ session['name'] }}</p>
+        </div>
+        <a href="{{ url_for('logout') }}" class="text-red-500 text-sm font-semibold bg-red-100 px-3 py-1 rounded-full">Keluar</a>
+    </div>
+
+    <div class="bg-dark text-white p-5 rounded-2xl shadow-lg mb-8 relative overflow-hidden">
+        <div class="relative z-10">
+            <p class="text-gray-400 text-xs">Total Produk Aktif</p>
+            <h2 class="text-2xl font-bold mb-4">{{ products|length }} Item</h2>
+            <a href="{{ url_for('merchant_add_product') }}" class="bg-primary text-dark text-xs font-bold px-4 py-2 rounded-lg inline-block shadow-lg shadow-lime-500/50">
+                <i class="fas fa-plus mr-1"></i> Tambah Produk
+            </a>
+        </div>
+        <i class="fas fa-store text-8xl text-white opacity-5 absolute -right-4 -bottom-4"></i>
+    </div>
+
+    <div class="mb-6">
+        <h3 class="font-bold text-gray-700 mb-3 border-l-4 border-primary pl-3">Pesanan Masuk</h3>
+        {% if orders %}
+            <div class="space-y-4">
+                {% for order in orders %}
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="bg-gray-100 text-gray-600 text-[10px] px-2 py-1 rounded font-bold">#{{ order.id }}</span>
+                        <span class="text-[10px] font-bold 
+                            {% if order.status == 'Menunggu Konfirmasi' %} text-yellow-500 
+                            {% elif order.status == 'Siap Diantar' %} text-blue-500 
+                            {% elif order.status == 'Selesai' %} text-green-500 {% endif %}">
+                            {{ order.status }}
+                        </span>
+                    </div>
+                    <h4 class="font-bold text-sm">{{ order.buyer_name }}</h4>
+                    <div class="text-xs text-gray-500 mb-3">
+                        {% for item in order['items'] %}
+                            <div>- {{ item.qty }}x {{ item.name }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="flex justify-between items-center border-t border-gray-100 pt-3">
+                        <span class="font-bold text-dark">Rp {{ "{:,}".format(order.total_price).replace(',', '.') }}</span>
+                        
+                        {% if order.status == 'Menunggu Konfirmasi' %}
+                            <a href="{{ url_for('merchant_accept_order', oid=order.id) }}" class="bg-primary text-dark text-xs font-bold px-4 py-2 rounded-lg shadow-sm animate-pulse">
+                                Terima Pesanan
+                            </a>
+                        {% elif order.status == 'Siap Diantar' %}
+                            <span class="text-xs text-gray-400 italic">Menunggu Kurir...</span>
+                        {% else %}
+                            <span class="text-xs text-green-600 font-bold"><i class="fas fa-check"></i> Selesai</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-8 bg-white rounded-xl border border-dashed border-gray-300">
+                <p class="text-gray-400 text-xs">Belum ada pesanan masuk.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="mt-8">
+        <h3 class="font-bold text-gray-700 mb-3 border-l-4 border-orange-500 pl-3">Kelola Produk</h3>
+        <div class="space-y-3">
+            {% for p in products %}
+            <div class="bg-white p-3 rounded-xl shadow-sm flex gap-3 items-center">
+                <img src="{{ p.image }}" class="w-16 h-16 rounded-lg object-cover bg-gray-100">
+                <div class="flex-1">
+                    <h4 class="font-bold text-sm text-dark line-clamp-1">{{ p.name }}</h4>
+                    <p class="text-primary font-bold text-sm">Rp {{ "{:,}".format(p.price).replace(',', '.') }}</p>
+                    <p class="text-[10px] text-gray-500">Stok: {{ p.stock }}</p>
+                </div>
+                <div class="flex flex-col space-y-2">
+                    <a href="{{ url_for('merchant_edit_product', pid=p.id) }}" class="w-8 h-8 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center text-xs"><i class="fas fa-pen"></i></a>
+                    <a href="{{ url_for('merchant_delete_product', pid=p.id) }}" onclick="return confirm('Yakin hapus produk ini?')" class="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-xs"><i class="fas fa-trash"></i></a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

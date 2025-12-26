@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="h-screen flex flex-col justify-center px-8 bg-gradient-to-br from-dark to-secondary text-white relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-64 h-64 bg-primary opacity-20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+    
+    <div class="z-10">
+        <div class="flex justify-center mb-8">
+            <div class="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center shadow-lg transform rotate-12">
+                <i class="fas fa-leaf text-4xl text-white -rotate-12"></i>
+            </div>
+        </div>
+        <h1 class="text-3xl font-bold text-center mb-2">Pasar Keliling</h1>
+        <p class="text-center text-gray-300 mb-8 text-sm">Belanja segar langsung dari petani ke depan rumahmu.</p>
+        
+        <form method="POST" class="space-y-4">
+            <div>
+                <label class="text-xs text-gray-300 ml-1">Username</label>
+                <input type="text" name="username" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-primary focus:bg-white/20 transition" placeholder="Masukkan username" required>
+            </div>
+            <div>
+                <label class="text-xs text-gray-300 ml-1">Password</label>
+                <input type="password" name="password" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-primary focus:bg-white/20 transition" placeholder="Masukkan password" required>
+            </div>
+            <button type="submit" class="w-full bg-primary hover:bg-lime-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-lime-500/30 transition transform active:scale-95 mt-4">
+                Masuk Sekarang
+            </button>
+        </form>
+        
+        <div class="mt-8 text-center text-xs text-gray-400">
+            <p>Contoh Login:</p>
+            <p>Pembeli: pembeli1 / 123</p>
+            <p>Pedagang: pedagang1 / 123</p>
+            <p>Kurir: kurir1 / 123</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

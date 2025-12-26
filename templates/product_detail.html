@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bg-white min-h-screen flex flex-col">
+    <div class="px-6 py-4 flex justify-between items-center absolute top-0 w-full max-w-[480px] z-10 text-white drop-shadow-md">
+        <a href="{{ url_for('buyer_home') }}"><i class="fas fa-arrow-left text-xl"></i></a>
+        <h1 class="font-medium">Detail Produk</h1>
+        <i class="fas fa-share-alt text-xl"></i>
+    </div>
+
+    <div class="h-72 w-full relative">
+        <img src="{{ product.image }}" class="w-full h-full object-cover rounded-b-[2rem]">
+    </div>
+
+    <div class="flex-1 px-6 pt-6 pb-24">
+        <div class="flex justify-between items-start mb-2">
+            <h1 class="text-2xl font-bold text-dark">{{ product.name }}</h1>
+            <button class="bg-gray-100 p-2 rounded-full text-gray-500"><i class="far fa-heart"></i></button>
+        </div>
+        
+        <div class="flex items-center space-x-4 mb-4">
+            <span class="flex items-center text-yellow-500 font-bold text-sm"><i class="fas fa-star mr-1"></i> {{ product.rating }}</span>
+            <span class="text-gray-400 text-sm">| 120 Terjual</span>
+        </div>
+
+        <h2 class="text-3xl font-bold text-primary mb-6">Rp {{ "{:,}".format(product.price).replace(',', '.') }}</h2>
+
+        <div class="border-t border-b border-gray-100 py-4 mb-4">
+            <h3 class="font-bold text-dark mb-2">Deskripsi</h3>
+            <p class="text-gray-500 text-sm leading-relaxed">{{ product.desc }}</p>
+        </div>
+
+        <div class="flex items-center space-x-3 mb-6">
+            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center"><i class="fas fa-store text-gray-500"></i></div>
+            <div>
+                <p class="text-xs text-gray-400">Penjual</p>
+                <p class="font-bold text-dark text-sm">{{ product.merchant_name }}</p>
+            </div>
+        </div>
+
+        <form action="{{ url_for('add_to_cart', pid=product.id) }}" method="POST">
+            <div class="flex items-center justify-between mb-8">
+                <span class="font-bold text-dark">Jumlah</span>
+                <div class="flex items-center border border-gray-300 rounded-lg p-1">
+                    <button type="button" class="px-3 py-1 text-gray-500" onclick="updateQty(-1)">-</button>
+                    <input type="text" name="qty" id="qty" value="1" class="w-8 text-center outline-none font-bold text-dark" readonly>
+                    <button type="button" class="px-3 py-1 text-primary" onclick="updateQty(1)">+</button>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-primary text-dark font-bold py-4 rounded-xl shadow-lg shadow-lime-500/30">
+                Tambah ke Keranjang
+            </button>
+        </form>
+    </div>
+</div>
+<script>
+    function updateQty(change) {
+        let qtyInput = document.getElementById('qty');
+        let current = parseInt(qtyInput.value);
+        if (current + change >= 1) {
+            qtyInput.value = current + change;
+        }
+    }
+</script>
+{% endblock %}

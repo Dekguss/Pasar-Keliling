@@ -1,0 +1,31 @@
+[
+    {
+        "id": 1,
+        "merchant_id": 1,
+        "name": "Sayuran Segar",
+        "price": 25000,
+        "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999",
+        "rating": 4.5,
+        "desc": "Sayuran segar langsung dari petani."
+    },
+    {
+        "id": 2,
+        "merchant_id": 1,
+        "name": "Buah Apel Merah",
+        "price": 35000,
+        "image": "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6",
+        "rating": 4.8,
+        "desc": "Apel merah manis nusantara."
+    },
+    {
+        "id": 3,
+        "merchant_id": 1,
+        "merchant_name": "Toko Sayur Segar",
+        "name": "Susu Ibu",
+        "price": 30000,
+        "image": "https://www.alodokter.com/7-manfaat-susu-kerbau-untuk-kesehatan",
+        "rating": 0.0,
+        "desc": "Susu enak sekali",
+        "stock": 12
+    }
+]
