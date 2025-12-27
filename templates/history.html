@@ -73,7 +73,7 @@
                         <div>
                             <p class="text-[10px] text-gray-400">Total Belanja</p>
                             <p class="font-bold text-dark">
-                                Rp {{ "%0.0f"|format(order.total_price)|replace(".", ",") }}
+                                Rp {{ "{:,.0f}".format(order.total_price).replace(",", "X").replace(".", ",").replace("X", ".") }}
                             </p>
                         </div>
                         

@@ -8,7 +8,7 @@
     </div>
 
     <div class="h-48 w-full relative">
-        <img src="{{ product.image }}" class="w-full h-full object-cover rounded-b-[2rem]">
+        <img src="{{ url_for('static', filename=product.image.replace('./static/', '')) }}" class="w-full h-full object-cover rounded-b-[2rem]">
     </div>
 
     <div class="flex-1 px-6 pt-6 pb-24">

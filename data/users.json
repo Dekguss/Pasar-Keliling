@@ -1,5 +1,5 @@
 [
     {"id": 1, "username": "pedagang1", "password": "123", "role": "pedagang", "name": "Toko Sayur Segar"},
-    {"id": 2, "username": "pembeli1", "password": "123", "role": "pembeli", "name": "I Kadek Dwi Adnyana", "balance":160000, "address": "Jl. Gatot Subroto No. 123"},
+    {"id": 2, "username": "pembeli1", "password": "123", "role": "pembeli", "name": "Dwi Adnyana", "balance":160000, "address":"Jl. Adnyana No. 1, Denpasar, Bali"} ,
     {"id": 3, "username": "kurir1", "password": "123", "role": "kurir", "name": "Bang Jago"}
   ]
