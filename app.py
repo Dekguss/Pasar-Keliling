@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import json
 import os
 from datetime import datetime
 
-app = Flask(__name__, static_folder='static', static_url_path='')
+app = Flask(__name__)
 app.secret_key = 'pasar_keliling_secret'
 
 # --- HELPER FUNCTIONS ---
@@ -434,10 +434,6 @@ def courier_finish_order(oid):
             o['status'] = 'Selesai'
     save_data('orders.json', orders)
     return redirect(url_for('courier_dashboard'))
-
-@app.route('/static/<path:filename>')
-def serve_static(filename):
-    return send_from_directory('static', filename)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
