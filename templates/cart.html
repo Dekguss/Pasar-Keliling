@@ -6,38 +6,242 @@
         <h1 class="font-bold text-lg">Keranjang Saya</h1>
     </div>
 
-    <div class="px-6 flex-1 pb-32">
+    <div class="px-6 flex-1 pb-32" id="cart-items">
         {% if cart %}
             {% for item in cart %}
-            <div class="bg-white p-4 rounded-xl shadow-sm mb-4 flex gap-4">
+            <div class="bg-white p-4 rounded-xl shadow-sm mb-4 flex gap-4 relative overflow-hidden transition-all duration-300" 
+                 id="cart-item-{{ loop.index0 }}"
+                 data-price="{{ item.price * item.qty }}">
                 <img src="{{ item.image }}" class="w-20 h-20 object-cover rounded-lg bg-gray-100">
                 <div class="flex-1 flex flex-col justify-between">
                     <div>
                         <h3 class="font-bold text-dark">{{ item.name }}</h3>
                         <p class="text-xs text-gray-500">Qty: {{ item.qty }}</p>
                     </div>
-                    <p class="text-primary font-bold">Rp {{ "{:,}".format(item.price * item.qty).replace(',', '.') }}</p>
+                    <p class="text-primary font-bold item-total">Rp {{ "{:,}".format(item.price * item.qty).replace(',', '.') }}</p>
                 </div>
+                <button 
+                    type="button" 
+                    class="text-red-500 hover:text-red-700 transition-colors absolute top-2 right-2 p-2"
+                    onclick="removeItem({{ loop.index0 }})">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
             {% endfor %}
         {% else %}
-            <div class="flex flex-col items-center justify-center h-64 text-gray-400">
+            <div id="empty-cart" class="flex flex-col items-center justify-center h-64 text-gray-400">
                 <i class="fas fa-shopping-basket text-4xl mb-2"></i>
                 <p>Keranjang kosong</p>
             </div>
         {% endif %}
     </div>
 
-    <div class="fixed bottom-0 w-full max-w-[480px] bg-white p-6 rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
+    <div class="fixed bottom-0 w-full max-w-[480px] bg-white p-6 rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.05)]" id="checkout-section">
         <div class="flex justify-between items-center mb-4">
             <span class="text-gray-500">Total Pembayaran</span>
-            <span class="text-xl font-bold text-dark">Rp {{ "{:,}".format(total).replace(',', '.') }}</span>
+            <span id="total-price" class="text-xl font-bold text-dark">Rp {{ "{:,}".format(total).replace(',', '.') }}</span>
         </div>
-        <form action="{{ url_for('checkout') }}" method="POST">
-            <button type="submit" class="w-full bg-primary text-dark font-bold py-4 mb-24 rounded-xl shadow-lg shadow-lime-500/30">
-                Pesan Sekarang
-            </button>
-        </form>
+        <button onclick="showPaymentModal()" class="w-full bg-primary text-white font-bold py-4 mb-24 rounded-xl shadow-lg shadow-lime-500/30">
+            Pesan Sekarang
+        </button>
     </div>
-</div>
+
+    <!-- Payment Method Modal -->
+    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl w-full max-w-md mx-4">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold">Pilih Metode Pembayaran</h3>
+                    <button onclick="hidePaymentModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <form id="paymentForm" action="{{ url_for('checkout') }}" method="POST">
+                    <div class="space-y-3 mb-6">
+                        <label class="flex items-center p-4 border rounded-xl cursor-pointer hover:bg-gray-50">
+                            <input type="radio" name="payment_method" value="saldo" class="h-5 w-5 text-primary focus:ring-primary" checked>
+                            <div class="ml-3">
+                                <span class="block font-medium">Gunakan Saldo</span>
+                                <span class="text-sm text-gray-500">Saldo tersedia: Rp 1.000.000</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center p-4 border rounded-xl cursor-pointer hover:bg-gray-50">
+                            <input type="radio" name="payment_method" value="cod" class="h-5 w-5 text-primary focus:ring-primary">
+                            <div class="ml-3">
+                                <span class="block font-medium">Bayar di Tempat (COD)</span>
+                                <span class="text-sm text-gray-500">Bayar saat pesanan diterima</span>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-4 border rounded-xl cursor-pointer hover:bg-gray-50">
+                            <input type="radio" name="payment_method" value="transfer" class="h-5 w-5 text-primary focus:ring-primary">
+                            <div class="ml-3">
+                                <span class="block font-medium">Transfer Bank</span>
+                                <span class="text-sm text-gray-500">BCA, BRI, Mandiri, dll.</span>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-4 border rounded-xl cursor-pointer hover:bg-gray-50">
+                            <input type="radio" name="payment_method" value="e-wallet" class="h-5 w-5 text-primary focus:ring-primary">
+                            <div class="ml-3">
+                                <span class="block font-medium">E-Wallet</span>
+                                <span class="text-sm text-gray-500">Dana, OVO, Gopay, dll.</span>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg shadow-lime-500/30">
+                        Lanjutkan Pembayaran
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function formatRupiah(angka) {
+            return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        function updateEmptyState() {
+            const cartItems = document.querySelectorAll('[id^="cart-item-"]');
+            const emptyCartDiv = document.getElementById('empty-cart');
+            const checkoutSection = document.getElementById('checkout-section');
+            
+            if (cartItems.length === 0) {
+                if (!emptyCartDiv) {
+                    const cartContainer = document.getElementById('cart-items');
+                    cartContainer.innerHTML = `
+                        <div id="empty-cart" class="flex flex-col items-center justify-center h-64 text-gray-400">
+                            <i class="fas fa-shopping-basket text-4xl mb-2"></i>
+                            <p>Keranjang kosong</p>
+                        </div>
+                    `;
+                }
+                if (checkoutSection) {
+                    checkoutSection.style.display = 'none';
+                }
+            } else {
+                if (emptyCartDiv) {
+                    emptyCartDiv.remove();
+                }
+                if (checkoutSection) {
+                    checkoutSection.style.display = 'block';
+                }
+            }
+        }
+
+        function updateCartCount() {
+            const cartCountElement = document.querySelector('.cart-count');
+            const cartBadge = document.querySelector('.cart-badge');
+            const itemCount = document.querySelectorAll('[id^="cart-item-"]').length;
+            
+            // Update cart count in the header
+            if (cartCountElement) {
+                if (itemCount > 0) {
+                    cartCountElement.textContent = itemCount;
+                    cartCountElement.style.display = 'flex';
+                } else {
+                    cartCountElement.style.display = 'none';
+                }
+            }
+            
+            // Update the cart badge in the bottom navigation
+            if (cartBadge) {
+                if (itemCount > 0) {
+                    cartBadge.textContent = itemCount;
+                    cartBadge.style.display = 'flex';
+                } else {
+                    cartBadge.style.display = 'none';
+                }
+            }
+            
+            // Update the session cart count via API
+            fetch('/update_cart_count', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ count: itemCount })
+            }).catch(error => console.error('Error updating cart count:', error));
+        }
+
+        function updateTotalPrice() {
+            const items = document.querySelectorAll('[id^="cart-item-"]');
+            let total = 0;
+            
+            items.forEach(item => {
+                const price = parseInt(item.dataset.price) || 0;
+                total += price;
+            });
+            
+            const totalElement = document.getElementById('total-price');
+            if (totalElement) {
+                totalElement.textContent = formatRupiah(total);
+            }
+        }
+
+        async function removeItem(index) {
+            const item = document.getElementById(`cart-item-${index}`);
+            if (!item) return;
+            
+            // Animation for removing the item
+            item.style.transform = 'translateX(100%)';
+            item.style.opacity = '0';
+            item.style.marginBottom = '0';
+            item.style.padding = '0';
+            item.style.height = '0';
+            
+            try {
+                const response = await fetch(`/remove_from_cart/${index}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                if (response.ok) {
+                    // Wait for animation to complete before removing from DOM
+                    setTimeout(() => {
+                        item.remove();
+                        updateTotalPrice();
+                        updateCartCount();
+                        updateEmptyState();
+                    }, 300);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // Revert animation if there's an error
+                item.style.transform = '';
+                item.style.opacity = '';
+                item.style.marginBottom = '';
+                item.style.padding = '';
+                item.style.height = '';
+            }
+        }
+
+        function showPaymentModal() {
+            document.getElementById('paymentModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hidePaymentModal() {
+            document.getElementById('paymentModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside of it
+        document.getElementById('paymentModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hidePaymentModal();
+            }
+        });
+
+        // Initialize the cart state
+        document.addEventListener('DOMContentLoaded', () => {
+            updateEmptyState();
+        });
+    </script>
 {% endblock %}

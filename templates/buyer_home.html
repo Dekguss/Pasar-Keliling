@@ -51,7 +51,11 @@
 </div>
 
 <div class="px-6 mt-6 pb-2">
-    <h3 class="font-semibold text-gray-700 mb-3">Produk Hari Ini</h3>
+    <div class="flex justify-between items-center mb-3">
+        <h3 class="font-semibold text-gray-700">Produk Hari Ini</h3>
+        <a href="{{ url_for('all_products') }}" class="text-primary text-xs font-bold hover:underline">Lihat Semua</a>
+    </div>
+    
     <div class="grid grid-cols-2 gap-4">
         {% for p in products[:4] %}
         <a href="{{ url_for('product_detail', pid=p.id) }}" class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
@@ -73,7 +77,7 @@
     </div>
 </div>
 
-<div class="px-6 mt-6 pb-2">
+<div class="px-6 mt-6 pb-24">
     <h3 class="font-semibold text-gray-700 mb-4">Penjual Sekitarmu</h3>
     <div class="flex overflow-x-auto hide-scrollbar space-x-4 pb-4 pr-6">
         <div class="min-w-[200px] bg-white rounded-xl shadow-md border border-gray-100 p-3 flex flex-col">

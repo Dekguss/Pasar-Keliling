@@ -7,7 +7,9 @@
 
 <style>
     /* Hilangkan instruksi teks default leaflet routing agar rapi di mobile */
-    .leaflet-routing-container { display: none !important; }
+    .leaflet-routing-container {
+        display: none !important;
+    }
 </style>
 
 <div class="h-screen flex flex-col relative bg-gray-100">
@@ -15,7 +17,8 @@
 
     <div class="absolute top-0 left-0 right-0 p-4 z-10">
         <div class="bg-white/90 backdrop-blur-md shadow-lg rounded-2xl p-4 flex items-center gap-3">
-            <a href="{{ url_for('courier_dashboard') }}" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-dark hover:bg-gray-200">
+            <a href="{{ url_for('courier_dashboard') }}"
+                class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-dark hover:bg-gray-200">
                 <i class="fas fa-arrow-left"></i>
             </a>
             <div class="flex-1">
@@ -36,18 +39,21 @@
                 </div>
                 <div>
                     <p class="text-[10px] text-gray-400">Estimasi Tiba</p>
-                    <h3 class="font-bold text-lg text-dark">15 Menit <span class="text-xs font-normal text-gray-500">(3.2 km)</span></h3>
+                    <h3 class="font-bold text-lg text-dark">15 Menit <span
+                            class="text-xs font-normal text-gray-500">(3.2 km)</span></h3>
                 </div>
             </div>
-            
+
             {% if order.status == 'Sedang Diantar' %}
-                <a href="{{ url_for('courier_finish_order', oid=order.id) }}" class="block w-full bg-primary hover:bg-lime-500 text-dark font-bold py-4 rounded-xl text-center shadow-lg shadow-lime-500/30 transition">
-                    Selesaikan Pesanan
-                </a>
+            <a href="{{ url_for('courier_finish_order', oid=order.id) }}"
+                class="block w-full bg-primary hover:bg-lime-500 text-dark font-bold py-4 rounded-xl text-center shadow-lg shadow-lime-500/30 transition">
+                Selesaikan Pesanan
+            </a>
             {% else %}
-                <button disabled class="block w-full bg-gray-200 text-gray-400 font-bold py-4 rounded-xl text-center cursor-not-allowed">
-                    Pesanan Selesai
-                </button>
+            <button disabled
+                class="block w-full bg-gray-200 text-gray-400 font-bold py-4 rounded-xl text-center cursor-not-allowed">
+                Pesanan Selesai
+            </button>
             {% endif %}
         </div>
     </div>
@@ -56,11 +62,11 @@
 <script>
     // Koordinat Hardcode untuk Demo (Denpasar, Bali area)
     // Dalam aplikasi real, koordinat ini diambil dari database user
-    const startLat = -8.670458; 
+    const startLat = -8.670458;
     const startLng = 115.212629; // Posisi Awal (Misal: Pasar Badung)
-    
+
     // Kita buat koordinat tujuan sedikit random agar terlihat beda tiap order (Simulasi)
-    const endLat = {{ -8.68 + (order.id * 0.002) }}; 
+    const endLat = {{ -8.68 + (order.id * 0.002) }};
     const endLng = {{ 115.22 + (order.id * 0.003) }}; // Posisi Tujuan (Rumah Pembeli)
 
     // Inisialisasi Map
@@ -71,20 +77,49 @@
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Custom Icon untuk Kurir (Motor)
-    var courierIcon = L.icon({
-        iconUrl: 'https://cdn-icons-png.flaticon.com/512/3063/3063823.png', // Ikon motor
+    const courierIcon = L.divIcon({
+        html: `
+            <div style="
+                background: #3b82f6;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                border: 2px solid white;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            ">
+                <i class="fas fa-motorcycle"></i>
+            </div>
+        `,
+        className: 'courier-marker',
         iconSize: [40, 40],
-        iconAnchor: [20, 20],
-        popupAnchor: [0, -20]
+        iconAnchor: [20, 20]
     });
 
-    // Custom Icon untuk Pembeli (Rumah)
-    var homeIcon = L.icon({
-        iconUrl: 'https://cdn-icons-png.flaticon.com/512/25/25694.png', // Ikon rumah
-        iconSize: [35, 35],
-        iconAnchor: [17, 35],
-        popupAnchor: [0, -35]
+    // Custom DivIcon untuk MPS (Toko/Penjual) - Warna Merah GoFood
+    const customerIcon = L.divIcon({
+        html: `
+            <div style="
+                background: #10b981;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                border: 2px solid white;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            ">
+                <i class="fas fa-home"></i>
+            </div>
+        `,
+        className: 'customer-marker',
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
     });
 
     // Fitur Routing Machine (Membuat Garis Jalan Otomatis)
@@ -95,17 +130,17 @@
         ],
         routeWhileDragging: false,
         lineOptions: {
-            styles: [{color: '#84cc16', opacity: 0.8, weight: 6}] // Warna Hijau (Primary)
+            styles: [{ color: '#3b82f6', opacity: 0.8, weight: 6 }] // Warna Hijau (Primary)
         },
-        createMarker: function(i, waypoint, n) {
+        createMarker: function (i, waypoint, n) {
             // Marker Awal (Kurir)
             if (i === 0) {
-                return L.marker(waypoint.latLng, {icon: courierIcon})
-                    .bindPopup("Posisi Anda");
+                return L.marker(waypoint.latLng, { icon: courierIcon })
+                    .bindPopup("Posisi Anda (Kurir)");
             }
-            // Marker Akhir (Pembeli)
-            return L.marker(waypoint.latLng, {icon: homeIcon})
-                .bindPopup("Rumah Pembeli: <b>{{ order.buyer_name }}</b>");
+            // Marker Akhir (MPS)
+            return L.marker(waypoint.latLng, { icon: customerIcon })
+                .bindPopup("Customer: <b>{{ order.buyer_name }}</b>");
         },
         show: false // Sembunyikan panel instruksi teks
     }).addTo(map);

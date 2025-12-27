@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+<style>
+    .leaflet-routing-container { 
+        display: none !important; 
+    }
+    .leaflet-marker-icon.leaflet-div-icon {
+        background: transparent !important;
+        border: none !important;
+    }
+    .fa-motorcycle, .fa-store, .fa-home {
+        text-shadow: 0 0 3px rgba(0,0,0,0.3);
+    }
+</style>
+
+<div class="h-screen flex flex-col relative bg-gray-100">
+    <!-- Map Container -->
+    <div id="map" class="absolute inset-0 z-0"></div>
+
+    <!-- Header -->
+    <div class="absolute top-0 left-0 right-0 p-4 z-10">
+        <div class="bg-white/90 backdrop-blur-md shadow-lg rounded-2xl p-4 flex items-center gap-3">
+            <a href="{{ url_for('history') }}" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-dark hover:bg-gray-200">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div class="flex-1">
+                <h2 class="font-bold text-sm text-dark">Lacak Pesanan #{{ order.id }}</h2>
+                <p class="text-xs text-gray-600 truncate">Status: {{ order.status }}</p>
+            </div>
+            <div class="bg-blue-100 text-blue-600 text-xs font-bold px-3 py-1.5 rounded-lg">
+                {{ order.status }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Info Panel -->
+    <div class="absolute bottom-0 left-0 right-0 p-6 pb-24 z-10">
+        <div class="bg-white rounded-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.1)] p-5">
+            <!-- Courier Info -->
+            <div class="flex items-center gap-4 mb-4">
+                <div class="bg-blue-100 p-3 rounded-full text-blue-600">
+                    <i class="fas fa-motorcycle text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-[10px] text-gray-400">Kurir</p>
+                    <h3 class="font-bold text-lg text-dark">{{ order.courier_name or 'Menunggu kurir' }}</h3>
+                </div>
+                {% if order.courier_phone %}
+                <a href="tel:{{ order.courier_phone }}" class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                    <i class="fas fa-phone"></i>
+                </a>
+                {% endif %}
+            </div>
+            
+            <!-- Delivery Info -->
+            <div class="flex items-start gap-4 mb-4">
+                <div class="flex flex-col items-center pt-1">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <div class="w-0.5 h-10 bg-gray-300 my-1"></div>
+                    <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                </div>
+                <div class="flex-1">
+                    <div class="mb-4">
+                        <p class="text-xs text-gray-500">Dari</p>
+                        <p class="text-sm font-medium">Pasar Keliling</p>
+                        <p class="text-xs text-gray-500">Jl. Pasar No. 123, Surabaya</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Ke</p>
+                        <p class="text-sm font-medium">{{ order.buyer_address }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery Time -->
+            <div class="flex items-center justify-between bg-blue-50 p-3 rounded-lg mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-clock text-blue-600"></i>
+                    <span class="text-sm font-medium">Estimasi Tiba</span>
+                </div>
+                <span class="text-blue-600 font-bold">15 Menit</span>
+            </div>
+
+            <!-- Action Button -->
+            <a href="{{ url_for('history') }}" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl text-center shadow-lg shadow-blue-500/30 transition">
+                Kembali ke Riwayat
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Koordinat untuk demo
+    // Dalam aplikasi nyata, ini harus diambil dari database/lokasi real-time
+    const merchantLat = -7.2575;  // Lokasi toko/penjual
+    const merchantLng = 112.7521;
+    
+    // Buat koordinat tujuan sedikit random berdasarkan ID order untuk demo
+    const customerLat = {{ -7.25 + (order.id * 0.001) }};
+    const customerLng = {{ 112.75 + (order.id * 0.002) }};
+    
+    // Posisi kurir (antara merchant dan customer)
+    const courierLat = merchantLat + (customerLat - merchantLat) * 0.3;
+    const courierLng = merchantLng + (customerLng - merchantLng) * 0.3;
+
+    // Inisialisasi Map
+    const map = L.map('map', { zoomControl: false }).setView([merchantLat, merchantLng], 14);
+
+    // Tambahkan Tile Layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Custom Icons
+    const courierIcon = L.divIcon({
+        html: `
+            <div style="
+                background: #3b82f6;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                border: 2px solid white;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            ">
+                <i class="fas fa-motorcycle"></i>
+            </div>
+        `,
+        className: 'courier-marker',
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
+    });
+
+    const merchantIcon = L.divIcon({
+        html: `
+            <div style="
+                background: #ef4444;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                border: 2px solid white;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            ">
+                <i class="fas fa-store"></i>
+            </div>
+        `,
+        className: 'merchant-marker',
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
+    });
+
+    const customerIcon = L.divIcon({
+        html: `
+            <div style="
+                background: #10b981;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                border: 2px solid white;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            ">
+                <i class="fas fa-home"></i>
+            </div>
+        `,
+        className: 'customer-marker',
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
+    });
+
+    // Tambahkan marker toko/penjual
+    L.marker([merchantLat, merchantLng], { 
+        icon: merchantIcon 
+    }).addTo(map).bindPopup("<b>Pasar Keliling</b><br>Lokasi Pengiriman");
+
+    // Tambahkan marker lokasi customer
+    L.marker([customerLat, customerLng], { 
+        icon: customerIcon 
+    }).addTo(map).bindPopup(`<b>Lokasi Anda</b><br>${document.querySelector('.font-medium:last-child').textContent}`);
+
+    // Tambahkan marker kurir
+    const courierMarker = L.marker([courierLat, courierLng], { 
+        icon: courierIcon,
+        rotationAngle: 30 // Sudut untuk efek miring
+    }).addTo(map).bindPopup(`<b>Kurir</b><br>${document.querySelector('.text-lg').textContent}`);
+
+    // Buat rute dari toko ke lokasi customer
+    L.Routing.control({
+        waypoints: [
+            L.latLng(merchantLat, merchantLng),
+            L.latLng(customerLat, customerLng)
+        ],
+        routeWhileDragging: false,
+        lineOptions: {
+            styles: [{ color: '#3b82f6', opacity: 0.7, weight: 5 }]
+        },
+        createMarker: function() { return null; }, // Nonaktifkan marker default
+        show: false
+    }).addTo(map);
+
+    // Animasi pergerakan kurir (hanya untuk demo)
+    if ({{ 'true' if order.status == 'Sedang Dikirim' else 'false' }}) {
+        let progress = 0;
+        const duration = 30000; // 30 detik untuk sampai ke tujuan
+        const interval = 100; // Update setiap 100ms
+        const steps = duration / interval;
+        const latStep = (customerLat - courierLat) / steps;
+        const lngStep = (customerLng - courierLng) / steps;
+
+        const moveCourier = setInterval(() => {
+            if (progress >= steps) {
+                clearInterval(moveCourier);
+                return;
+            }
+            
+            progress++;
+            const newLat = courierLat + (latStep * progress);
+            const newLng = courierLng + (lngStep * progress);
+            
+            // Update posisi marker kurir
+            courierMarker.setLatLng([newLat, newLng]);
+            
+            // Update rotasi untuk efek bergerak
+            const angle = Math.atan2(lngStep, latStep) * 180 / Math.PI + 90;
+            courierMarker.setRotationAngle(angle);
+            
+        }, interval);
+    }
+
+    // Fit bounds untuk menampilkan semua marker
+    const bounds = L.latLngBounds(
+        [merchantLat, merchantLng],
+        [customerLat, customerLng]
+    );
+    map.fitBounds(bounds, { padding: [50, 50] });
+</script>
+{% endblock %}

@@ -8,7 +8,7 @@
                 <h1 class="text-xl font-bold text-dark">Halo, Juragan!</h1>
                 <p class="text-xs text-gray-500">{{ session['name'] }}</p>
             </div>
-            <a href="{{ url_for('logout') }}" class="w-10 h-10 bg-red-50 text-red-500 rounded-full flex items-center justify-center hover:bg-red-100 transition shadow-sm">
+            <a href="{{ url_for('logout') }}" class="w-10 h-10 text-red-500 rounded-full flex items-center justify-center">
                 <i class="fas fa-sign-out-alt"></i>
             </a>
         </div>
@@ -40,14 +40,16 @@
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
                     <div class="absolute top-0 right-0 px-3 py-1.5 rounded-bl-xl text-[10px] font-bold
                         {% if order.status == 'Menunggu Konfirmasi' %} bg-yellow-100 text-yellow-600 
-                        {% elif order.status == 'Siap Diantar' %} bg-blue-100 text-blue-600 
+                        {% elif order.status == 'Menunggu Kurir' %} bg-yellow-100 text-yellow-600 
+                        {% elif order.status == 'Sedang Diantar' %} bg-blue-100 text-blue-600 
                         {% elif order.status == 'Selesai' %} bg-green-100 text-green-600 {% endif %}">
                         {{ order.status }}
                     </div>
 
                     <div class="mb-3">
                         <p class="text-[10px] text-gray-400">Order #{{ order.id }}</p>
-                        <h4 class="font-bold text-dark">{{ order.buyer_name }}</h4>
+                        <h4 class="font-bold text-dark">{{ order.buyer_name }} </h4>
+                        <p class="text-xs text-gray-400">{{ order.payment_method }}</p>
                     </div>
 
                     <div class="bg-gray-50 rounded-xl p-3 mb-4 text-xs text-gray-600 space-y-1">
@@ -65,10 +67,12 @@
                         </div>
                         
                         {% if order.status == 'Menunggu Konfirmasi' %}
-                            <a href="{{ url_for('merchant_accept_order', oid=order.id) }}" class="bg-dark text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-gray-500/30 active:scale-95 transition">
+                        <form action="{{ url_for('merchant_accept_order', oid=order.id) }}" method="POST" class="inline">
+                            <button type="submit" class="bg-dark text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-gray-500/30 active:scale-95 transition">
                                 Terima
-                            </a>
-                        {% elif order.status == 'Siap Diantar' %}
+                            </button>
+                        </form>
+                        {% elif order.status == 'Menunggu Kurir' %}
                             <div class="flex items-center text-xs text-blue-500 bg-blue-50 px-3 py-1.5 rounded-lg">
                                 <i class="fas fa-spinner fa-spin mr-2"></i> Menunggu Kurir
                             </div>

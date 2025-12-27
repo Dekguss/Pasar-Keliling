@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bg-gray-50 min-h-screen pb-24">
+    
+    <div class="bg-white sticky top-0 z-30 shadow-sm pb-2">
+        <div class="px-6 py-4 flex items-center gap-4">
+            <a href="{{ url_for('buyer_home') }}" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-dark hover:bg-gray-200 transition">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1 class="font-bold text-lg text-dark">Semua Produk</h1>
+        </div>
+
+        <div class="px-6 mb-2">
+            <form action="{{ url_for('all_products') }}" method="GET" class="relative">
+                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                <input type="text" name="q" placeholder="Cari sayur, buah..." class="w-full bg-gray-100 text-dark pl-12 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition text-sm">
+            </form>
+        </div>
+
+        <div class="px-6 flex gap-2 overflow-x-auto hide-scrollbar pb-2">
+            <button class="bg-dark text-white px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap">Semua</button>
+            <button class="bg-white border border-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap hover:border-primary hover:text-primary">Sayuran</button>
+            <button class="bg-white border border-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap hover:border-primary hover:text-primary">Buah</button>
+            <button class="bg-white border border-gray-200 text-gray-600 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap hover:border-primary hover:text-primary">Daging</button>
+        </div>
+    </div>
+
+    <div class="px-6 mt-4">
+        {% if products %}
+            <div class="grid grid-cols-2 gap-4">
+                {% for p in products %}
+                <a href="{{ url_for('product_detail', pid=p.id) }}" class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition flex flex-col h-full">
+                    <div class="relative mb-3">
+                        <img src="{{ p.image }}" class="w-full h-32 object-cover rounded-xl bg-gray-100">
+                        <div class="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
+                            <i class="fas fa-star text-yellow-400 text-[10px]"></i>
+                            <span class="text-[10px] font-bold text-dark">{{ p.rating }}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex flex-col">
+                        <h4 class="font-bold text-dark text-sm truncate mb-1">{{ p.name }}</h4>
+                        <div class="flex items-center gap-1 mb-2">
+                            <i class="fas fa-store text-gray-400 text-[10px]"></i>
+                            <p class="text-[10px] text-gray-500 truncate">{{ p.merchant_name }}</p>
+                        </div>
+                        
+                        <div class="mt-auto flex justify-between items-center">
+                            <span class="font-bold text-secondary text-sm">Rp {{ "{:,}".format(p.price).replace(',', '.') }}</span>
+                            <div class="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs shadow-md shadow-lime-500/30">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="flex flex-col items-center justify-center py-20 text-center">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-300">
+                    <i class="fas fa-search text-3xl"></i>
+                </div>
+                <h3 class="font-bold text-gray-700">Produk tidak ditemukan</h3>
+                <p class="text-xs text-gray-400 mt-1">Coba kata kunci lain.</p>
+                <a href="{{ url_for('all_products') }}" class="mt-4 text-primary text-xs font-bold">Reset Pencarian</a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

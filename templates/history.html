@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="bg-gray-50 min-h-screen pb-24">
+    
+    <div class="bg-white sticky top-0 z-30 px-6 py-4 shadow-sm flex items-center gap-4">
+        <a href="{{ url_for('buyer_home') }}" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-dark hover:bg-gray-200 transition">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1 class="font-bold text-lg text-dark">Riwayat Pesanan</h1>
+    </div>
+
+    <div class="px-6 mt-6">
+        {% if orders %}
+            <div class="space-y-4">
+                {% for order in orders %}
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-4 relative overflow-hidden group">
+                    
+                    <div class="absolute top-0 right-0 px-3 py-1.5 rounded-bl-xl text-[10px] font-bold
+                        {% if order.status == 'Menunggu Konfirmasi' %} bg-yellow-100 text-yellow-600 
+                        {% elif order.status == 'Menunggu Kurir' %} bg-yellow-100 text-yellow-600 
+                        {% elif order.status == 'Sedang Diantar' %} bg-blue-100 text-blue-600 
+                        {% elif order.status == 'Selesai' %} bg-green-100 text-green-600 {% endif %}">
+                        {{ order.status }}
+                    </div>
+
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fas fa-store text-gray-400 text-xs"></i>
+                            <span class="text-xs font-bold text-dark">
+                               Pasar Keliling
+                            </span>
+                        </div>
+                        <p class="text-[10px] text-gray-400">
+                            {{ order.date }}
+                        </p>
+                    </div>
+
+                    {% if order.order_items|length > 0 %}
+                        {% for item in order.order_items[:2] %}
+                        <div class="flex gap-4 items-start bg-gray-50 p-3 rounded-xl {% if not loop.last %}mb-2{% endif %}">
+                            <div class="w-16 h-16 bg-white rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
+                                <img src="{{ item.image }}" alt="{{ item.name }}" class="w-full h-full object-cover">
+                            </div>
+                            
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-bold text-sm text-dark truncate">
+                                    {{ item.name }}
+                                </h4>
+                                <p class="text-[10px] text-gray-500 mb-1">
+                                    {{ item.qty }} barang x Rp {{ "%0.0f"|format(item.price)|replace(".", ",") }}
+                                </p>
+                                <p class="text-[10px] text-gray-500">
+                                    Subtotal: Rp {{ "%0.0f"|format(item.price * item.qty)|replace(".", ",") }}
+                                </p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        {% if order.order_items|length > 2 %}
+                        <div class="text-center mt-2">
+                            <button class="text-primary text-xs font-medium">
+                                +{{ order.order_items|length - 2 }} item lainnya <i class="fas fa-chevron-right text-[10px]"></i>
+                            </button>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4 text-gray-400 text-sm">
+                            Tidak ada item dalam pesanan ini
+                        </div>
+                    {% endif %}
+
+                    <div class="flex justify-between items-end border-t border-dashed border-gray-200 pt-3">
+                        <div>
+                            <p class="text-[10px] text-gray-400">Total Belanja</p>
+                            <p class="font-bold text-dark">
+                                Rp {{ "%0.0f"|format(order.total_price)|replace(".", ",") }}
+                            </p>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <a href="#" class="flex items-center gap-1 px-3 py-2 border border-primary text-primary text-xs font-medium rounded-lg hover:bg-primary hover:text-white transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                <span>Detail</span>
+                            </a>
+                            {% if order.status == 'Selesai' %}
+                            <a href="#" class="flex items-center gap-1 px-3 py-2 bg-primary text-white text-xs font-medium rounded-lg hover:bg-primary/90 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                <span>Beli Lagi</span>
+                            </a>
+                            {% elif order.status == 'Sedang Diantar' %}
+                            <a href="{{ url_for('track_order', order_id=order.id) }}" class="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <span>Lacak</span>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-10">
+                <div class="w-20 h-20 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-shopping-bag text-2xl text-gray-300"></i>
+                </div>
+                <h3 class="font-medium text-gray-400">Belum ada riwayat pesanan</h3>
+                <p class="text-sm text-gray-400 mt-1">Ayo mulai belanja di Pasar Keliling</p>
+                <a href="{{ url_for('all_products') }}" class="inline-block mt-4 px-6 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition">
+                    Belanja Sekarang
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

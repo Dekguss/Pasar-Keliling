@@ -26,7 +26,7 @@ def index():
     if 'user_id' in session:
         role = session.get('role')
         if role == 'pembeli': return redirect(url_for('buyer_home'))
-        elif role == 'pedagang': return redirect(url_for('merchant_products'))
+        elif role == 'pedagang': return redirect(url_for('merchant_orders'))
         elif role == 'kurir': return redirect(url_for('courier_dashboard'))
     return redirect(url_for('login'))
 
@@ -42,6 +42,8 @@ def login():
             session['role'] = user['role']
             session['name'] = user['name']
             session['cart'] = []
+            if 'address' in user:
+                session['address'] = user['address']
             return redirect(url_for('index'))
         else:
             flash('Username atau password salah', 'error')
@@ -60,6 +62,19 @@ def buyer_home():
     users = load_data('users.json')
     current_user = next((u for u in users if u['id'] == session['user_id']), {})
     return render_template('buyer_home.html', products=products, user=current_user)
+
+@app.route('/all-products')
+def all_products():
+    if session.get('role') != 'pembeli': return redirect(url_for('login'))
+    
+    products = load_data('products.json')
+    
+    # (Opsional) Fitur Search sederhana via URL parameter ?q=apel
+    query = request.args.get('q')
+    if query:
+        products = [p for p in products if query.lower() in p['name'].lower()]
+        
+    return render_template('all_products.html', products=products)
 
 @app.route('/product/<int:pid>')
 def product_detail(pid):
@@ -114,6 +129,19 @@ def add_to_cart(pid):
     }
     cart.append(item)
     session['cart'] = cart
+    return redirect(url_for('product_detail', pid=pid))
+
+@app.route('/remove_from_cart/<int:index>', methods=['POST'])
+def remove_from_cart(index):
+    if 'cart' not in session:
+        return redirect(url_for('cart'))
+        
+    cart = session.get('cart', [])
+    
+    if 0 <= index < len(cart):
+        cart.pop(index)
+        session['cart'] = cart
+    
     return redirect(url_for('cart'))
 
 @app.route('/cart')
@@ -127,6 +155,18 @@ def checkout():
     cart = session.get('cart', [])
     if not cart: return redirect(url_for('buyer_home'))
     
+    payment_method = request.form.get('payment_method', 'cod')  # Default to 'cod' if not provided
+    
+    # Map payment method codes to display names
+    payment_methods = {
+        'saldo': 'Saldo',
+        'cod': 'Bayar di Tempat (COD)',
+        'transfer': 'Transfer Bank',
+        'e-wallet': 'E-Wallet'
+    }
+    
+    payment_display = payment_methods.get(payment_method, 'Bayar di Tempat (COD)')
+    
     orders = load_data('orders.json')
     new_order_id = get_next_id(orders)
     
@@ -135,13 +175,19 @@ def checkout():
     # Di sini kita ambil merchant_id dari item pertama saja untuk penyederhanaan.
     merchant_id = cart[0]['merchant_id'] if cart else 0
     
+    # Get user data to ensure we have the latest address
+    users = load_data('users.json')
+    current_user = next((u for u in users if u['id'] == session.get('user_id')), {})
+    
     new_order = {
         "id": new_order_id,
-        "buyer_id": session['user_id'],
-        "buyer_name": session['name'],
+        "buyer_id": session.get('user_id'),
+        "buyer_name": session.get('name', 'Pembeli'),
+        "buyer_address": current_user.get('address', 'Alamat belum diatur'),
         "merchant_id": merchant_id,  # Penting untuk filter di dashboard pedagang
         "items": cart,
         "total_price": sum(item['price'] * item['qty'] for item in cart),
+        "payment_method": payment_display,
         "status": "Menunggu Konfirmasi", # Status Awal
         "date": datetime.now().strftime("%Y-%m-%d"),
         "courier_id": None
@@ -154,14 +200,59 @@ def checkout():
 
 @app.route('/history')
 def history():
+    if 'user_id' not in session or session.get('role') != 'pembeli':
+        return redirect(url_for('login'))
+    
     orders = load_data('orders.json')
-    # Filter order milik pembeli ini
-    my_orders = [o for o in orders if o['buyer_id'] == session['user_id']]
-    # Sort descending (terbaru diatas)
-    my_orders.sort(key=lambda x: x['id'], reverse=True)
+    # Filter pesanan milik user yang sedang login
+    my_orders = []
+    for order in orders:
+        if order.get('buyer_id') == session['user_id']:
+            # Buat salinan order untuk menghindari perubahan pada data asli
+            order_copy = order.copy()
+            
+            # Gunakan 'order_items' sebagai ganti 'items' untuk menghindari konflik dengan method dict.items()
+            if 'items' in order_copy and isinstance(order_copy['items'], list) and not hasattr(order_copy['items'], '__call__'):
+                order_items = order_copy['items']
+            else:
+                order_items = []
+            
+            # Pastikan setiap item memiliki semua field yang diperlukan
+            processed_items = []
+            for item in order_items:
+                if not isinstance(item, dict):
+                    continue
+                processed_item = item.copy()
+                processed_item.setdefault('image', '')
+                processed_item.setdefault('name', 'Produk tidak tersedia')
+                processed_item.setdefault('price', 0)
+                processed_item.setdefault('qty', 1)
+                processed_items.append(processed_item)
+            
+            # Update order_copy dengan items yang sudah diproses
+            order_copy['order_items'] = processed_items
+            my_orders.append(order_copy)
+    
+    # Urutkan dari yang terbaru (ID terbesar diatas)
+    my_orders.sort(key=lambda x: x.get('id', 0), reverse=True)
+    
     return render_template('history.html', orders=my_orders)
 
-# --- MERCHANT ROUTES (Updated) ---
+@app.route('/track-order/<int:order_id>')
+def track_order(order_id):
+    if 'user_id' not in session or session.get('role') != 'pembeli':
+        return redirect(url_for('login'))
+    
+    orders = load_data('orders.json')
+    order = next((o for o in orders if o['id'] == order_id and o['buyer_id'] == session['user_id']), None)
+    
+    if not order:
+        flash('Pesanan tidak ditemukan', 'error')
+        return redirect(url_for('history'))
+    
+    return render_template('track_order.html', order=order)
+
+# --- MERCHANT ROUTE ---
 
 # 1. Halaman Utama (Pesanan Masuk)
 @app.route('/merchant')
@@ -254,45 +345,59 @@ def merchant_delete_product(pid):
     
     return redirect(url_for('merchant_products'))
 
-@app.route('/merchant/orders/<int:oid>/accept', methods=['POST'])
+@app.route('/merchant/orders/<int:oid>/accept', methods=['GET', 'POST'])
 def merchant_accept_order(oid):
     if session.get('role') != 'pedagang': 
         return redirect(url_for('login'))
     
-    orders = load_data('orders.json')
-    order = next((o for o in orders if o['id'] == oid), None)
-    
-    if not order:
-        flash('Pesanan tidak ditemukan', 'error')
-        return redirect(url_for('merchant_orders'))
+    if request.method == 'POST':
+        orders = load_data('orders.json')
+        order = next((o for o in orders if o['id'] == oid), None)
         
-    if order['merchant_id'] != session['user_id']:
-        flash('Anda tidak memiliki akses ke pesanan ini', 'error')
-        return redirect(url_for('merchant_orders'))
+        if not order:
+            flash('Pesanan tidak ditemukan', 'error')
+            return redirect(url_for('merchant_orders'))
+            
+        if order['merchant_id'] != session['user_id']:
+            flash('Anda tidak memiliki akses ke pesanan ini', 'error')
+            return redirect(url_for('merchant_orders'))
+        
+        # Update status pesanan
+        order['status'] = 'Menunggu Kurir'
+        save_data('orders.json', orders)
+        
+        flash('Pesanan berhasil diterima', 'success')
     
-    # Update status pesanan
-    order['status'] = 'Siap Diantar'
-    save_data('orders.json', orders)
-    
-    flash('Pesanan berhasil diterima', 'success')
     return redirect(url_for('merchant_orders'))
 
 # --- COURIER ROUTES ---
 @app.route('/courier')
 def courier_dashboard():
-    if session.get('role') != 'kurir': return redirect(url_for('login'))
-    orders = load_data('orders.json')
+    if session.get('role') != 'kurir': 
+        return redirect(url_for('login'))
     
-    # Kurir hanya melihat order yang SUDAH di-ACC pedagang ("Siap Diantar")
-    # ATAU order yang sedang dia bawa sendiri ("Sedang Diantar")
+    orders = load_data('orders.json')
+    tab = request.args.get('tab', 'available')  # Default to 'available' tab
+    
     available_orders = []
+    history_orders = []
+    
     for o in orders:
-        if o['status'] == 'Siap Diantar':
+        # Orders that are waiting to be picked up or being delivered by this courier
+        if o['status'] in ['Menunggu Kurir', 'Siap Diantar']:
             available_orders.append(o)
-        elif o['status'] == 'Sedang Diantar' and o['courier_id'] == session['user_id']:
-            available_orders.append(o)
-            
-    return render_template('courier.html', orders=available_orders)
+        elif o['status'] in ['Sedang Diantar', 'Selesai'] and o.get('courier_id') == session['user_id']:
+            if o['status'] == 'Selesai':
+                history_orders.append(o)
+            else:
+                available_orders.append(o)
+    
+    # Sort history by date (newest first)
+    history_orders.sort(key=lambda x: x.get('date', ''), reverse=True)
+    
+    return render_template('courier.html', 
+                         orders=available_orders if tab == 'available' else history_orders,
+                         current_tab=tab)
 
 @app.route('/courier/take/<int:oid>')
 def courier_take_order(oid):
@@ -301,7 +406,7 @@ def courier_take_order(oid):
     orders = load_data('orders.json')
     for o in orders:
         # Pastikan status masih Siap Diantar (belum diambil kurir lain)
-        if o['id'] == oid and o['status'] == 'Siap Diantar':
+        if o['id'] == oid and o['status'] == 'Menunggu Kurir':
             o['status'] = 'Sedang Diantar'
             o['courier_id'] = session['user_id']
     save_data('orders.json', orders)

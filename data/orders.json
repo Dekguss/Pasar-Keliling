@@ -3,25 +3,7 @@
         "id": 1,
         "buyer_id": 2,
         "buyer_name": "Dwi Adnyana",
-        "items": [
-            {
-                "id": 1,
-                "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999",
-                "merchant_id": 1,
-                "name": "Sayuran Segar",
-                "price": 25000,
-                "qty": 2
-            }
-        ],
-        "total": 50000,
-        "status": "Menunggu Konfirmasi",
-        "courier_id": null,
-        "date": "2025-12-26 23:10"
-    },
-    {
-        "id": 2,
-        "buyer_id": 2,
-        "buyer_name": "Dwi Adnyana",
+        "buyer_address": "Jl. Gatot Subroto No. 123",
         "merchant_id": 1,
         "items": [
             {
@@ -44,35 +26,16 @@
             }
         ],
         "total_price": 60000,
-        "status": "Selesai",
-        "date": "2025-12-26",
-        "courier_id": 3
-    },
-    {
-        "id": 3,
-        "buyer_id": 2,
-        "buyer_name": "Dwi Adnyana",
-        "merchant_id": 1,
-        "items": [
-            {
-                "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999",
-                "merchant_id": 1,
-                "merchant_name": "Toko Sayur Segar",
-                "name": "Sayuran Segar",
-                "price": 25000,
-                "product_id": 1,
-                "qty": 3
-            }
-        ],
-        "total_price": 75000,
-        "status": "Siap Diantar",
+        "payment_method": "Saldo",
+        "status": "Menunggu Konfirmasi",
         "date": "2025-12-27",
         "courier_id": null
     },
     {
-        "id": 4,
+        "id": 2,
         "buyer_id": 2,
         "buyer_name": "Dwi Adnyana",
+        "buyer_address": "Jl. Gatot Subroto No. 123",
         "merchant_id": 1,
         "items": [
             {
@@ -82,21 +45,13 @@
                 "name": "Buah Apel Merah",
                 "price": 35000,
                 "product_id": 2,
-                "qty": 2
-            },
-            {
-                "image": "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6",
-                "merchant_id": 1,
-                "merchant_name": "Toko Sayur Segar",
-                "name": "Buah Apel",
-                "price": 35000,
-                "product_id": 3,
                 "qty": 1
             }
         ],
-        "total_price": 105000,
-        "status": "Menunggu Konfirmasi",
+        "total_price": 35000,
+        "payment_method": "Bayar di Tempat (COD)",
+        "status": "Selesai",
         "date": "2025-12-27",
-        "courier_id": null
+        "courier_id": 3
     }
 ]
