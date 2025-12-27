@@ -11,9 +11,40 @@
 
     <div class="px-6 mt-6">
         {% if orders %}
-            <div class="space-y-4">
-                {% for order in orders %}
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-4 relative overflow-hidden group">
+            <!-- Add sorting options -->
+            <div class="flex justify-end mb-4">
+                <div class="relative">
+                    <select id="sortSelect" class="appearance-none bg-white border border-gray-200 text-gray-700 py-2 px-4 pr-8 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-primary/50">
+                        <option value="date_desc">Terbaru</option>
+                        <option value="date_asc">Terlama</option>
+                        <option value="price_desc">Harga Tertinggi</option>
+                        <option value="price_asc">Harga Terendah</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4" id="ordersContainer">
+                {% set sorted_orders = orders|sort(attribute='date', reverse=true) %}
+                {% set special_order = [] %}
+                {% for order in sorted_orders %}
+                    {% if order.id == 1 %}
+                        {% set _ = special_order.append(order) %}
+                    {% endif %}
+                {% endfor %}
+                {% for order in sorted_orders %}
+                    {% if order.id != 1 %}
+                        {% set _ = special_order.append(order) %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% for order in special_order %}
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-4 relative overflow-hidden group order-item" 
+                     data-date="{{ order.date }}" 
+                     data-price="{{ order.total_price }}"
+                     data-id="{{ order.id }}">
                     
                     <div class="absolute top-0 right-0 px-3 py-1.5 rounded-bl-xl text-[10px] font-bold
                         {% if order.status == 'Menunggu Konfirmasi' %} bg-yellow-100 text-yellow-600 
@@ -121,3 +152,45 @@
     </div>
 </div>
 {% endblock %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sortSelect = document.getElementById('sortSelect');
+    const ordersContainer = document.getElementById('ordersContainer');
+    
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            const sortValue = this.value;
+            const orders = Array.from(document.querySelectorAll('.order-item'));
+            
+            orders.sort((a, b) => {
+                if (a.dataset.id == 1) return -1;
+                if (b.dataset.id == 1) return 1;
+                if (sortValue === 'date_desc') {
+                    return new Date(b.dataset.date) - new Date(a.dataset.date);
+                } else if (sortValue === 'date_asc') {
+                    return new Date(a.dataset.date) - new Date(b.dataset.date);
+                } else if (sortValue === 'price_desc') {
+                    return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+                } else if (sortValue === 'price_asc') {
+                    return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+                }
+                return 0;
+            });
+            
+            // Clear and re-append sorted orders
+            ordersContainer.innerHTML = '';
+            orders.forEach(order => {
+                ordersContainer.appendChild(order);
+            });
+        });
+    }
+});
+</script>
+
+<style>
+/* Add smooth transition for reordering */
+#ordersContainer {
+    transition: all 0.3s ease;
+}
+</style>
