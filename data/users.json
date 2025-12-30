@@ -1,8 +1,8 @@
 [
     {"id": 1, "username": "pedagang1", "password": "123", "role": "pedagang", "name": "Toko Pak Jaya"},
     {"id": 2, "username": "pedagang2", "password": "123", "role": "pedagang", "name": "Toko Buk Siti"},
-    {"id": 2, "username": "pembeli1", "password": "123", "role": "pembeli", "name": "Dwi Adnyana", "balance":160000, "address":"Jl. Adnyana No. 1, Denpasar, Bali"} ,
-    {"id": 3, "username": "pembeli2", "password": "123", "role": "pembeli", "name": "Kadek Dwi", "balance":160000, "address":"Jl. Mekar No. 4, Denpasar, Bali"} ,
-    {"id": 4, "username": "pembeli3", "password": "123", "role": "pembeli", "name": "Dekguss", "balance":160000, "address":"Jl. Mekar  No. 6, Denpasar, Bali"} ,
-    {"id": 5, "username": "kurir1", "password": "123", "role": "kurir", "name": "Bang Jago"}
+    {"id": 3, "username": "pembeli1", "password": "123", "role": "pembeli", "name": "Dwi Adnyana", "balance":160000, "address":"Jl. Adnyana No. 1, Denpasar, Bali"} ,
+    {"id": 4, "username": "pembeli2", "password": "123", "role": "pembeli", "name": "Kadek Dwi", "balance":100000, "address":"Jl. Mekar No. 4, Denpasar, Bali"} ,
+    {"id": 5, "username": "pembeli3", "password": "123", "role": "pembeli", "name": "Dekguss", "balance":170000, "address":"Jl. Mekar  No. 6, Denpasar, Bali"} ,
+    {"id": 6, "username": "kurir1", "password": "123", "role": "kurir", "name": "Bang Jago"}
   ]

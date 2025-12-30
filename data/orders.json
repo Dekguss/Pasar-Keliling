@@ -1,7 +1,7 @@
 [
     {
         "id": 2,
-        "buyer_id": 2,
+        "buyer_id": 3,
         "buyer_name": "Dwi Adnyana",
         "buyer_address": "Jl. Adnyana No. 1, Denpasar, Bali",
         "merchant_id": 1,
@@ -24,7 +24,7 @@
     },
     {
         "id": 3,
-        "buyer_id": 2,
+        "buyer_id": 3,
         "buyer_name": "Dwi Adnyana",
         "buyer_address": "Jl. Adnyana No. 1, Denpasar, Bali",
         "merchant_id": 1,
@@ -65,7 +65,7 @@
     },
     {
         "id": 4,
-        "buyer_id": 2,
+        "buyer_id": 3,
         "buyer_name": "Dwi Adnyana",
         "buyer_address": "Jl. Adnyana No. 1, Denpasar, Bali",
         "merchant_id": 1,
@@ -88,7 +88,7 @@
     },
     {
         "id": 1,
-        "buyer_id": 2,
+        "buyer_id": 3,
         "buyer_name": "Dwi Adnyana",
         "buyer_address": "Jl. Adnyana No. 1, Denpasar, Bali",
         "merchant_id": 1,
@@ -120,7 +120,7 @@
     },      
     {
         "id": 5,
-        "buyer_id": 3,
+        "buyer_id": 4,
         "buyer_name": "Kadek Dwi",
         "buyer_address": "Jl. Mekar No. 4, Denpasar, Bali",
         "merchant_id": 2,
@@ -143,7 +143,7 @@
     },
     {
         "id": 6,
-        "buyer_id": 4,
+        "buyer_id": 5,
         "buyer_name": "Dekguss",
         "buyer_address": "Jl. Mekar  No. 6, Denpasar, Bali",
         "merchant_id": 1,
