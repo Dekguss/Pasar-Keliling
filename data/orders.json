@@ -87,6 +87,38 @@
         "courier_id": 5
     },
     {
+        "id": 1,
+        "buyer_id": 2,
+        "buyer_name": "Dwi Adnyana",
+        "buyer_address": "Jl. Adnyana No. 1, Denpasar, Bali",
+        "merchant_id": 1,
+        "items": [
+            {
+                "image": "./static/Bayam.jpg",
+                "merchant_id": 1,
+                "merchant_name": "Toko Sayur Segar",
+                "name": "Sayur Bayam",
+                "price": 5000,
+                "product_id": 1,
+                "qty": 2
+            },
+            {
+                "image": "./static/Ayam.jpeg",
+                "merchant_id": 1,
+                "merchant_name": "Toko Sayur Segar",
+                "name": "Daging Ayam",
+                "price": 12500,
+                "product_id": 2,
+                "qty": 1
+            }
+        ],
+        "total_price": 22500,
+        "payment_method": "Saldo",
+        "status": "Menunggu Kurir",
+        "date": "2025-12-27",
+        "courier_id": 3
+    },      
+    {
         "id": 5,
         "buyer_id": 3,
         "buyer_name": "Kadek Dwi",
@@ -140,37 +172,6 @@
         "status": "Sedang Diantar",
         "date": "2025-12-30",
         "courier_id": 5
-    },
-    {
-        "id": 1,
-        "buyer_id": 2,
-        "buyer_name": "Dwi Adnyana",
-        "buyer_address": "Jl. Adnyana No. 1, Denpasar, Bali",
-        "merchant_id": 1,
-        "items": [
-            {
-                "image": "./static/Bayam.jpg",
-                "merchant_id": 1,
-                "merchant_name": "Toko Sayur Segar",
-                "name": "Sayur Bayam",
-                "price": 5000,
-                "product_id": 1,
-                "qty": 2
-            },
-            {
-                "image": "./static/Ayam.jpeg",
-                "merchant_id": 1,
-                "merchant_name": "Toko Sayur Segar",
-                "name": "Daging Ayam",
-                "price": 12500,
-                "product_id": 2,
-                "qty": 1
-            }
-        ],
-        "total_price": 22500,
-        "payment_method": "Saldo",
-        "status": "Menunggu Kurir",
-        "date": "2025-12-27",
-        "courier_id": 3
     }
+
 ]
