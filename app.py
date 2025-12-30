@@ -237,7 +237,7 @@ def history():
     my_orders.sort(key=lambda x: x.get('id', 0), reverse=True)
     
     return render_template('history.html', orders=my_orders)
-
+    
 @app.route('/track-order/<int:order_id>')
 def track_order(order_id):
     if 'user_id' not in session or session.get('role') != 'pembeli':
@@ -412,17 +412,12 @@ def courier_take_order(oid):
     save_data('orders.json', orders)
     return redirect(url_for('courier_dashboard'))
 
-@app.route('/courier/map/<int:oid>')
-def courier_map(oid):
-    if session.get('role') != 'kurir': return redirect(url_for('login'))
+@app.route('/courier/map/')
+def courier_map():
+    if session.get('role') != 'kurir': 
+        return redirect(url_for('login'))
     
-    orders = load_data('orders.json')
-    order = next((o for o in orders if o['id'] == oid), None)
-    
-    if not order:
-        return redirect(url_for('courier_dashboard'))
-        
-    return render_template('courier_map.html', order=order)
+    return render_template('courier_map.html')
 
 @app.route('/courier/finish/<int:oid>')
 def courier_finish_order(oid):

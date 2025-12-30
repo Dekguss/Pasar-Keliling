@@ -1,37 +1,5 @@
 [
     {
-        "id": 1,
-        "buyer_id": 2,
-        "buyer_name": "Dwi Adnyana",
-        "buyer_address": "Jl. Adnyana No. 1, Denpasar, Bali",
-        "merchant_id": 1,
-        "items": [
-            {
-                "image": "./static/Bayam.jpg",
-                "merchant_id": 1,
-                "merchant_name": "Toko Sayur Segar",
-                "name": "Sayur Bayam",
-                "price": 5000,
-                "product_id": 1,
-                "qty": 2
-            },
-            {
-                "image": "./static/Ayam.jpeg",
-                "merchant_id": 1,
-                "merchant_name": "Toko Sayur Segar",
-                "name": "Daging Ayam",
-                "price": 12500,
-                "product_id": 2,
-                "qty": 1
-            }
-        ],
-        "total_price": 22500,
-        "payment_method": "Saldo",
-        "status": "Sedang Diantar",
-        "date": "2025-12-27",
-        "courier_id": 3
-    },
-    {
         "id": 2,
         "buyer_id": 2,
         "buyer_name": "Dwi Adnyana",
@@ -52,7 +20,7 @@
         "payment_method": "Bayar di Tempat (COD)",
         "status": "Selesai",
         "date": "2025-12-27",
-        "courier_id": 3
+        "courier_id": 5
     },
     {
         "id": 3,
@@ -113,6 +81,93 @@
             }
         ],
         "total_price": 5000,
+        "payment_method": "Saldo",
+        "status": "Sedang Diantar",
+        "date": "2025-12-27",
+        "courier_id": 5
+    },
+    {
+        "id": 5,
+        "buyer_id": 3,
+        "buyer_name": "Kadek Dwi",
+        "buyer_address": "Jl. Mekar No. 4, Denpasar, Bali",
+        "merchant_id": 2,
+        "items": [
+            {
+                "image": "./static/Beras.jpg",
+                "merchant_id": 2,
+                "merchant_name": "Toko",
+                "name": "Beras 5kg",
+                "price": 95000,
+                "product_id": 3,
+                "qty": 1
+            }
+        ],
+        "total_price": 95000,
+        "payment_method": "Transfer Bank",
+        "status": "Sedang Diantar",
+        "date": "2025-12-30",
+        "courier_id": 5
+    },
+    {
+        "id": 6,
+        "buyer_id": 4,
+        "buyer_name": "Dekguss",
+        "buyer_address": "Jl. Mekar  No. 6, Denpasar, Bali",
+        "merchant_id": 1,
+        "items": [
+            {
+                "image": "./static/Bayam.jpg",
+                "merchant_id": 1,
+                "merchant_name": "Toko Pak Jaya",
+                "name": "Sayur Bayam",
+                "price": 5000,
+                "product_id": 1,
+                "qty": 1
+            },
+            {
+                "image": "./static/Kol.jpg",
+                "merchant_id": 1,
+                "merchant_name": "Toko Pak Jaya",
+                "name": "Sayur Kol",
+                "price": 7000,
+                "product_id": 4,
+                "qty": 3
+            }
+        ],
+        "total_price": 26000,
+        "payment_method": "Bayar di Tempat (COD)",
+        "status": "Sedang Diantar",
+        "date": "2025-12-30",
+        "courier_id": 5
+    },
+    {
+        "id": 1,
+        "buyer_id": 2,
+        "buyer_name": "Dwi Adnyana",
+        "buyer_address": "Jl. Adnyana No. 1, Denpasar, Bali",
+        "merchant_id": 1,
+        "items": [
+            {
+                "image": "./static/Bayam.jpg",
+                "merchant_id": 1,
+                "merchant_name": "Toko Sayur Segar",
+                "name": "Sayur Bayam",
+                "price": 5000,
+                "product_id": 1,
+                "qty": 2
+            },
+            {
+                "image": "./static/Ayam.jpeg",
+                "merchant_id": 1,
+                "merchant_name": "Toko Sayur Segar",
+                "name": "Daging Ayam",
+                "price": 12500,
+                "product_id": 2,
+                "qty": 1
+            }
+        ],
+        "total_price": 22500,
         "payment_method": "Saldo",
         "status": "Menunggu Kurir",
         "date": "2025-12-27",

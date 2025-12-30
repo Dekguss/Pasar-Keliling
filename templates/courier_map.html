@@ -10,6 +10,30 @@
     .leaflet-routing-container {
         display: none !important;
     }
+
+    /* Pastikan container map memiliki tinggi yang cukup */
+    #map {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    /* Pastikan body dan html juga memiliki tinggi 100% */
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Pastikan container utama mengambil full height */
+    .h-screen {
+        height: 100vh;
+    }
 </style>
 
 <div class="h-screen flex flex-col relative bg-gray-100">
@@ -22,11 +46,11 @@
                 <i class="fas fa-arrow-left"></i>
             </a>
             <div class="flex-1">
-                <h2 class="font-bold text-sm text-dark">Mengantar ke:</h2>
-                <p class="text-xs text-gray-600 truncate">{{ order.buyer_name }}</p>
+                <h2 class="font-bold text-sm text-dark">Terdapat 3 Pesanan</h2>
+                <p class="text-xs text-gray-500"></p>
             </div>
             <div class="bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">
-                {{ order.status }}
+                Tersedia
             </div>
         </div>
     </div>
@@ -38,45 +62,42 @@
                     <i class="fas fa-map-marker-alt text-xl"></i>
                 </div>
                 <div>
-                    <p class="text-[10px] text-gray-400">Estimasi Tiba</p>
-                    <h3 class="font-bold text-lg text-dark">15 Menit <span
+                    <p class="text-[10px] text-gray-400">Estimasi Selesai</p>
+                    <h3 class="font-bold text-lg text-dark">20 Menit <span
                             class="text-xs font-normal text-gray-500">(3.2 km)</span></h3>
                 </div>
             </div>
 
-            {% if order.status == 'Sedang Diantar' %}
-            <a href="{{ url_for('courier_finish_order', oid=order.id) }}"
+
+            <a href="{{ url_for('courier_dashboard') }}"
                 class="block w-full bg-primary hover:bg-lime-500 text-dark font-bold py-4 rounded-xl text-center shadow-lg shadow-lime-500/30 transition">
-                Selesaikan Pesanan
+                Kembali ke Dashboard
             </a>
-            {% else %}
-            <button disabled
-                class="block w-full bg-gray-200 text-gray-400 font-bold py-4 rounded-xl text-center cursor-not-allowed">
-                Pesanan Selesai
-            </button>
-            {% endif %}
         </div>
     </div>
 </div>
 
 <script>
-    // Koordinat Hardcode untuk Demo (Denpasar, Bali area)
-    // Dalam aplikasi real, koordinat ini diambil dari database user
-    const startLat = -8.670458;
-    const startLng = 115.212629; // Posisi Awal (Misal: Pasar Badung)
+    // Koordinat Hardcode untuk Demo (Area Renon, Denpasar)
+    const startLat = -8.656779;
+    const startLng = 115.212557; // Posisi Awal (Pasar Badung)
 
-    // Kita buat koordinat tujuan sedikit random agar terlihat beda tiap order (Simulasi)
-    const endLat = {{ -8.68 + (order.id * 0.002) }};
-    const endLng = {{ 115.22 + (order.id * 0.003) }}; // Posisi Tujuan (Rumah Pembeli)
+    // Tiga lokasi tujuan dengan rute alami
+    const destinations = [
+        { lat: -8.658502, lng: 115.212031, name: "Rumah 1" },
+        { lat: -8.658314, lng: 115.208683, name: "Rumah 2" },
+        { lat: -8.657209, lng: 115.208258, name: "Rumah 3" },
+    ];
 
     // Inisialisasi Map
     var map = L.map('map', { zoomControl: false }).setView([startLat, startLng], 13);
 
-    // Tambahkan Tile Layer (Peta Jalan) - OpenStreetMap (Gratis)
+    // Tambahkan Tile Layer (Peta Jalan) - OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
+    // Icon untuk kurir (titik awal)
     const courierIcon = L.divIcon({
         html: `
             <div style="
@@ -99,7 +120,7 @@
         iconAnchor: [20, 20]
     });
 
-    // Custom DivIcon untuk MPS (Toko/Penjual) - Warna Merah GoFood
+    // Icon untuk rumah pelanggan
     const customerIcon = L.divIcon({
         html: `
             <div style="
@@ -122,15 +143,22 @@
         iconAnchor: [20, 20]
     });
 
-    // Fitur Routing Machine (Membuat Garis Jalan Otomatis)
+    // Buat waypoints untuk rute
+    const waypoints = [
+        L.latLng(startLat, startLng)  // Titik awal
+    ];
+
+    // Tambahkan semua tujuan ke waypoints
+    destinations.forEach(dest => {
+        waypoints.push(L.latLng(dest.lat, dest.lng));
+    });
+
+    // Buat rute dengan multiple waypoints
     L.Routing.control({
-        waypoints: [
-            L.latLng(startLat, startLng), // Titik Awal
-            L.latLng(endLat, endLng)      // Titik Tujuan
-        ],
+        waypoints: waypoints,
         routeWhileDragging: false,
         lineOptions: {
-            styles: [{ color: '#3b82f6', opacity: 0.8, weight: 6 }] // Warna Hijau (Primary)
+            styles: [{ color: '#3b82f6', opacity: 0.8, weight: 6 }]
         },
         createMarker: function (i, waypoint, n) {
             // Marker Awal (Kurir)
@@ -138,11 +166,20 @@
                 return L.marker(waypoint.latLng, { icon: courierIcon })
                     .bindPopup("Posisi Anda (Kurir)");
             }
-            // Marker Akhir (MPS)
+            // Marker Tujuan (Rumah Pelanggan)
+            const dest = destinations[i - 1]; // -1 karena waypoint pertama adalah posisi awal
             return L.marker(waypoint.latLng, { icon: customerIcon })
-                .bindPopup("Customer: <b>{{ order.buyer_name }}</b>");
+                .bindPopup(`<b>${dest.name}</b><br>${dest.lat.toFixed(6)}, ${dest.lng.toFixed(6)}`);
         },
-        show: false // Sembunyikan panel instruksi teks
+        show: false
     }).addTo(map);
+
+    // Hitung total jarak dan waktu tempuh
+    const totalDistance = 3.2; // dalam km
+    const totalTime = 20; // dalam menit
+
+    // Update UI dengan total jarak dan waktu
+    document.querySelector('.text-lg').textContent = `${totalTime} Menit `;
+    document.querySelector('.text-xs').textContent = `(${totalDistance} km)`;
 </script>
 {% endblock %}
