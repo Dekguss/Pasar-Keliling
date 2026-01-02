@@ -5,4 +5,4 @@
     {"id": 4, "username": "pembeli2", "password": "123", "role": "pembeli", "name": "Kadek Dwi", "balance":100000, "address":"Jl. Mekar No. 4, Denpasar, Bali"} ,
     {"id": 5, "username": "pembeli3", "password": "123", "role": "pembeli", "name": "Dekguss", "balance":170000, "address":"Jl. Mekar  No. 6, Denpasar, Bali"} ,
     {"id": 6, "username": "kurir1", "password": "123", "role": "kurir", "name": "Bang Jago"}
-  ]
+]
